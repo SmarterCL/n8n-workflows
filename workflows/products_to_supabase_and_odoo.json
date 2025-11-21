@@ -1,0 +1,147 @@
+{
+  "name": "Products → Supabase + Odoo (FREE)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manualTrigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [260, 220]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PRODUCTS_JSON_URL || 'https://demo.smarterbot.store/products.json'}}",
+        "responseFormat": "json"
+      },
+      "id": "getProducts",
+      "name": "Get Products JSON",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [520, 220]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Normalize incoming products and force FREE pricing\nconst source = Array.isArray(items[0]?.json) ? items[0].json : items.map(i => i.json);\nconst products = source.map((p, idx) => ({\n  id: p.id || idx + 1,\n  name: p.name || p.title || `Product ${idx+1}`,\n  sku: p.sku || p.handle || `SKU-${idx+1}`,\n  description: p.description || '',\n  price: 0,\n  currency: 'USD',\n  is_free: true,\n  images: p.images || p.image || [],\n  metadata: p\n}));\nreturn products.map(p => ({ json: p }));"
+      },
+      "id": "setFreePrices",
+      "name": "Set FREE Prices",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [780, 220]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/products",
+        "options": {
+          "sendBody": true
+        },
+        "responseFormat": "json",
+        "jsonParameters": true,
+        "sendHeaders": true,
+        "headerParametersJson": "={{ JSON.stringify({\"apikey\": $env.SUPABASE_KEY, \"Authorization\": `Bearer ${$env.SUPABASE_KEY}`, \"Content-Type\": \"application/json\"}) }}",
+        "bodyParametersJson": "={{ JSON.stringify(items.map(i => i.json)) }}"
+      },
+      "id": "supabaseInsert",
+      "name": "Insert Products (Supabase)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1060, 120]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Prepare Odoo JSON-RPC payloads per product\n// We will: authenticate → create product.template → create product.product\nreturn items.map(item => {\n  const p = item.json;\n  return { json: { product: p } };\n});"
+      },
+      "id": "prepOdoo",
+      "name": "Prep Odoo Payloads",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [1060, 320]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "split",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [1280, 320]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.ODOO_URL}}/jsonrpc",
+        "options": {},
+        "responseFormat": "json",
+        "jsonParameters": true,
+        "sendBody": true,
+        "bodyParametersJson": "={{ JSON.stringify({jsonrpc: '2.0', method: 'call', params: {service: 'common', method: 'authenticate', args: [$env.ODOO_DB, $env.ODOO_USER, $env.ODOO_PASSWORD, {}]}}) }}"
+      },
+      "id": "odooAuth",
+      "name": "Odoo Authenticate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1480, 240]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.ODOO_URL}}/jsonrpc",
+        "options": {},
+        "responseFormat": "json",
+        "jsonParameters": true,
+        "sendBody": true,
+        "bodyParametersJson": "={{ (() => { const uid = $item(0,'odooAuth').$node[\"Odoo Authenticate\"].json.result; const p = $json.product; return JSON.stringify({ jsonrpc: '2.0', method: 'call', params: { service: 'object', method: 'execute_kw', args: [ $env.ODOO_DB, uid, $env.ODOO_PASSWORD, 'product.template', 'create', [{ name: p.name, list_price: 0, type: 'consu', description_sale: p.description || '' }] ] } }); })() }}"
+      },
+      "id": "odooCreateTemplate",
+      "name": "Odoo Create product.template",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1700, 320]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.ODOO_URL}}/jsonrpc",
+        "options": {},
+        "responseFormat": "json",
+        "jsonParameters": true,
+        "sendBody": true,
+        "bodyParametersJson": "={{ (() => { const uid = $item(0,'odooAuth').$node[\"Odoo Authenticate\"].json.result; const templateId = $json.result; const p = $item(0,'prepOdoo').$node[\"Prep Odoo Payloads\"].json.product; return JSON.stringify({ jsonrpc: '2.0', method: 'call', params: { service: 'object', method: 'execute_kw', args: [ $env.ODOO_DB, uid, $env.ODOO_PASSWORD, 'product.product', 'create', [{ product_tmpl_id: templateId, default_code: p.sku || null }] ] } }); })() }}"
+      },
+      "id": "odooCreateVariant",
+      "name": "Odoo Create product.product",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1920, 320]
+    }
+  ],
+  "connections": {
+    "Get Products JSON": {
+      "main": [ [ { "node": "Set FREE Prices", "type": "main", "index": 0 } ] ]
+    },
+    "Manual Trigger": {
+      "main": [ [ { "node": "Get Products JSON", "type": "main", "index": 0 } ] ]
+    },
+    "Set FREE Prices": {
+      "main": [ [ { "node": "Insert Products (Supabase)", "type": "main", "index": 0 }, { "node": "Prep Odoo Payloads", "type": "main", "index": 0 } ] ]
+    },
+    "Prep Odoo Payloads": {
+      "main": [ [ { "node": "Split In Batches", "type": "main", "index": 0 } ] ]
+    },
+    "Split In Batches": {
+      "main": [ [ { "node": "Odoo Authenticate", "type": "main", "index": 0 } ] ]
+    },
+    "Odoo Authenticate": {
+      "main": [ [ { "node": "Odoo Create product.template", "type": "main", "index": 0 } ] ]
+    },
+    "Odoo Create product.template": {
+      "main": [ [ { "node": "Odoo Create product.product", "type": "main", "index": 0 } ] ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all"
+  },
+  "pinData": {},
+  "staticData": {}
+}
