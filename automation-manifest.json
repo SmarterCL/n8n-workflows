@@ -1,0 +1,163 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-24T17:36:00Z",
+  "categories": {
+    "odoo": {
+      "name": "Odoo ERP",
+      "description": "Automatizaciones para Odoo ERP",
+      "icon": "🏪",
+      "color": "#875A7B"
+    },
+    "shopify": {
+      "name": "Shopify",
+      "description": "Integraciones con tiendas Shopify",
+      "icon": "🛒",
+      "color": "#96BF48"
+    },
+    "marketing": {
+      "name": "Marketing",
+      "description": "Campañas y automatizaciones de marketing",
+      "icon": "📢",
+      "color": "#FF6B6B"
+    },
+    "whatsapp": {
+      "name": "WhatsApp",
+      "description": "Automatizaciones de WhatsApp Business",
+      "icon": "💬",
+      "color": "#25D366"
+    },
+    "crm": {
+      "name": "CRM",
+      "description": "Gestión de clientes y relaciones",
+      "icon": "👥",
+      "color": "#4A90E2"
+    },
+    "pdf": {
+      "name": "PDF",
+      "description": "Generación y procesamiento de PDFs",
+      "icon": "📄",
+      "color": "#E74C3C"
+    },
+    "backup": {
+      "name": "Backup",
+      "description": "Respaldos y sincronización",
+      "icon": "💾",
+      "color": "#95A5A6"
+    }
+  },
+  "workflows": [
+    {
+      "id": "odoo-sync-inventory",
+      "name": "Sincronizar Inventario Odoo",
+      "category": "odoo",
+      "description": "Sincronización automática de inventario entre Odoo y Shopify",
+      "path": "odoo/sync-inventory.json",
+      "tags": ["odoo", "shopify", "sync", "inventory"],
+      "active": true,
+      "schedule": "0 */6 * * *",
+      "webhook": "/webhook/odoo-sync-inventory"
+    },
+    {
+      "id": "odoo-sync-products",
+      "name": "Sincronizar Productos Odoo",
+      "category": "odoo",
+      "description": "Actualiza catálogo de productos desde Odoo a Shopify",
+      "path": "odoo/sync-products.json",
+      "tags": ["odoo", "shopify", "products"],
+      "active": true,
+      "schedule": "0 2 * * *",
+      "webhook": "/webhook/odoo-sync-products"
+    },
+    {
+      "id": "odoo-sync-orders",
+      "name": "Importar Pedidos desde Shopify",
+      "category": "odoo",
+      "description": "Importa pedidos de Shopify a Odoo automáticamente",
+      "path": "odoo/sync-orders.json",
+      "tags": ["odoo", "shopify", "orders"],
+      "active": true,
+      "schedule": "*/15 * * * *",
+      "webhook": "/webhook/odoo-sync-orders"
+    },
+    {
+      "id": "shopify-abandoned-cart",
+      "name": "Recuperar Carritos Abandonados",
+      "category": "shopify",
+      "description": "Envía emails automáticos para recuperar ventas perdidas",
+      "path": "shopify/abandoned-cart.json",
+      "tags": ["shopify", "marketing", "email"],
+      "active": true,
+      "schedule": "0 */2 * * *",
+      "webhook": "/webhook/shopify-abandoned-cart"
+    },
+    {
+      "id": "whatsapp-leads-crm",
+      "name": "WhatsApp Leads → CRM",
+      "category": "whatsapp",
+      "description": "Captura mensajes de WhatsApp y crea leads en el CRM",
+      "path": "whatsapp/leads-to-crm.json",
+      "tags": ["whatsapp", "crm", "leads"],
+      "active": true,
+      "webhook": "/webhook/whatsapp-leads"
+    },
+    {
+      "id": "marketing-email-campaign",
+      "name": "Campaña de Email Marketing",
+      "category": "marketing",
+      "description": "Envío masivo de emails personalizados",
+      "path": "marketing/email-campaign.json",
+      "tags": ["marketing", "email"],
+      "active": false,
+      "webhook": "/webhook/marketing-campaign"
+    },
+    {
+      "id": "pdf-invoice-generator",
+      "name": "Generar Facturas PDF",
+      "category": "pdf",
+      "description": "Crea facturas en PDF desde pedidos de Shopify",
+      "path": "pdf/invoice-generator.json",
+      "tags": ["pdf", "shopify", "invoices"],
+      "active": true,
+      "webhook": "/webhook/generate-invoice"
+    },
+    {
+      "id": "backup-google-sheets",
+      "name": "Backup a Google Sheets",
+      "category": "backup",
+      "description": "Respaldo diario de datos a Google Sheets",
+      "path": "backup/google-sheets.json",
+      "tags": ["backup", "google", "sheets"],
+      "active": true,
+      "schedule": "0 0 * * *",
+      "webhook": "/webhook/backup-sheets"
+    },
+    {
+      "id": "crm-task-reminder",
+      "name": "Recordatorios de Tareas CRM",
+      "category": "crm",
+      "description": "Envía notificaciones de tareas pendientes",
+      "path": "crm/task-reminder.json",
+      "tags": ["crm", "notifications"],
+      "active": true,
+      "schedule": "0 9 * * *",
+      "webhook": "/webhook/crm-reminders"
+    },
+    {
+      "id": "shopify-inventory-alert",
+      "name": "Alertas de Stock Bajo",
+      "category": "shopify",
+      "description": "Notifica cuando productos tienen stock crítico",
+      "path": "shopify/inventory-alert.json",
+      "tags": ["shopify", "inventory", "alerts"],
+      "active": true,
+      "schedule": "0 8,18 * * *",
+      "webhook": "/webhook/inventory-alert"
+    }
+  ],
+  "stats": {
+    "totalWorkflows": 10,
+    "activeWorkflows": 9,
+    "categories": 7,
+    "avgExecutionsPerDay": 150
+  }
+}
