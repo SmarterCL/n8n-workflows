@@ -1,0 +1,44 @@
+{
+  "name": "Chatwoot Events Processor",
+  "description": "Procesa eventos de Chatwoot y crea leads en Odoo",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatwoot-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "lead",
+        "operation": "create"
+      },
+      "name": "Create Lead in Odoo",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create Lead in Odoo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "category": "chatwoot",
+  "tags": ["chatwoot", "odoo", "crm", "automation"],
+  "version": "1.0.0"
+}
