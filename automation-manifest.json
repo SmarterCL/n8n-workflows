@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2025-11-24T17:36:00Z",
+  "lastUpdated": "2025-11-28T09:00:00Z",
   "categories": {
     "odoo": {
       "name": "Odoo ERP",
@@ -13,6 +13,12 @@
       "description": "Integraciones con tiendas Shopify",
       "icon": "🛒",
       "color": "#96BF48"
+    },
+    "chatwoot": {
+      "name": "Chatwoot CRM",
+      "description": "Integraciones con Chatwoot",
+      "icon": "💬",
+      "color": "#1F93FF"
     },
     "marketing": {
       "name": "Marketing",
@@ -46,6 +52,16 @@
     }
   },
   "workflows": [
+    {
+      "id": "chatwoot-basic",
+      "name": "Chatwoot Basic Sync",
+      "category": "chatwoot",
+      "description": "Sincronización básica de contactos y conversaciones desde Chatwoot",
+      "path": "templates/chatwoot-basic.json",
+      "tags": ["chatwoot", "crm", "sync"],
+      "active": true,
+      "webhook": "/webhook/chatwoot-sync"
+    },
     {
       "id": "odoo-sync-inventory",
       "name": "Sincronizar Inventario Odoo",
@@ -99,65 +115,12 @@
       "tags": ["whatsapp", "crm", "leads"],
       "active": true,
       "webhook": "/webhook/whatsapp-leads"
-    },
-    {
-      "id": "marketing-email-campaign",
-      "name": "Campaña de Email Marketing",
-      "category": "marketing",
-      "description": "Envío masivo de emails personalizados",
-      "path": "marketing/email-campaign.json",
-      "tags": ["marketing", "email"],
-      "active": false,
-      "webhook": "/webhook/marketing-campaign"
-    },
-    {
-      "id": "pdf-invoice-generator",
-      "name": "Generar Facturas PDF",
-      "category": "pdf",
-      "description": "Crea facturas en PDF desde pedidos de Shopify",
-      "path": "pdf/invoice-generator.json",
-      "tags": ["pdf", "shopify", "invoices"],
-      "active": true,
-      "webhook": "/webhook/generate-invoice"
-    },
-    {
-      "id": "backup-google-sheets",
-      "name": "Backup a Google Sheets",
-      "category": "backup",
-      "description": "Respaldo diario de datos a Google Sheets",
-      "path": "backup/google-sheets.json",
-      "tags": ["backup", "google", "sheets"],
-      "active": true,
-      "schedule": "0 0 * * *",
-      "webhook": "/webhook/backup-sheets"
-    },
-    {
-      "id": "crm-task-reminder",
-      "name": "Recordatorios de Tareas CRM",
-      "category": "crm",
-      "description": "Envía notificaciones de tareas pendientes",
-      "path": "crm/task-reminder.json",
-      "tags": ["crm", "notifications"],
-      "active": true,
-      "schedule": "0 9 * * *",
-      "webhook": "/webhook/crm-reminders"
-    },
-    {
-      "id": "shopify-inventory-alert",
-      "name": "Alertas de Stock Bajo",
-      "category": "shopify",
-      "description": "Notifica cuando productos tienen stock crítico",
-      "path": "shopify/inventory-alert.json",
-      "tags": ["shopify", "inventory", "alerts"],
-      "active": true,
-      "schedule": "0 8,18 * * *",
-      "webhook": "/webhook/inventory-alert"
     }
   ],
   "stats": {
-    "totalWorkflows": 10,
-    "activeWorkflows": 9,
-    "categories": 7,
+    "totalWorkflows": 6,
+    "activeWorkflows": 6,
+    "categories": 8,
     "avgExecutionsPerDay": 150
   }
 }

@@ -1,0 +1,18 @@
+{
+  "name": "Chatwoot Basic Template",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.chatwoot.com",
+        "responseFormat": "json"
+      },
+      "id": "chatwoot-api-node",
+      "name": "Chatwoot API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [600, 300]
+    }
+  ],
+  "connections": {}
+}
